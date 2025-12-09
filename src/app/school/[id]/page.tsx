@@ -53,8 +53,8 @@ export async function generateMetadata(
     };
 }
 
-export default async function SchoolDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+export default async function SchoolDetailsPage({ params }: Props) {
+    const { id } = params;
 
     // The component already fetches it using getSchool(id).
     const school = await getSchool(id);

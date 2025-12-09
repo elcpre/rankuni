@@ -4,9 +4,9 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id } = params;
+    const { id } = await params;
 
     try {
         const school = await prisma.school.findUnique({
