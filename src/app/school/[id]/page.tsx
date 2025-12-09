@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
@@ -142,7 +142,9 @@ export default async function SchoolDetailsPage({ params }: Props) {
             </div>
 
             {/* Filters (Search Bar) */}
-            <DashboardFilters />
+            <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
+                <DashboardFilters />
+            </Suspense>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
 

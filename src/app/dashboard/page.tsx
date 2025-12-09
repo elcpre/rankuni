@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { prisma } from '@/lib/db';
@@ -122,7 +122,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
 
             {/* Filters */}
-            <DashboardFilters />
+            <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
+                <DashboardFilters />
+            </Suspense>
 
             {/* Visualizations Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 mt-6">

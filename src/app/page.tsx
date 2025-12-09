@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { ArrowRight, BarChart2, Globe, Search, ShieldCheck, Zap } from 'lucide-react';
@@ -32,7 +32,9 @@ export default function Home() {
 
           {/* Search/Filter Container */}
           <div className="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-2 transform transition-all hover:scale-[1.01]">
-            <DashboardFilters />
+            <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
+              <DashboardFilters />
+            </Suspense>
           </div>
         </div>
 
