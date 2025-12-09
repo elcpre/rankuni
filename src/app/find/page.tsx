@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { Search } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function FindPage() {
     return (
         <div className="container mx-auto px-4 py-16 max-w-5xl">
