@@ -1,7 +1,4 @@
 'use client';
-
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { Search } from 'lucide-react';
 
