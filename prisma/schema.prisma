@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id        String   @id @default(uuid())
+  ncesId    String?  @unique
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zip       String?
+  type      String?
+  level     String?
+  latitude  Float?
+  longitude Float?
+  url       String?
+  country   String   @default("US")
+  currency  String   @default("USD")
+
+  metrics   Metric[]
+
+  createdAt DateTime @default(now())
+}
+
+model Metric {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  category  String
+  name      String
+  value     Float
+  year      Int
+  source    String
+
+  createdAt DateTime @default(now())
+}
