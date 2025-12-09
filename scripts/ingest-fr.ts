@@ -125,7 +125,7 @@ async function ingestFR() {
                     if (existing) {
                         await prisma.metric.update({
                             where: { id: existing.id },
-                            data: { value: val }
+                            data: { value: parseFloat(val) }
                         });
                     } else {
                         await prisma.metric.create({
@@ -133,7 +133,7 @@ async function ingestFR() {
                                 schoolId: school.id,
                                 name: "Student Size",
                                 category: "Enrollment",
-                                value: val,
+                                value: parseFloat(val),
                                 year: year,
                                 source: 'MESR/Statistiques',
                             }
