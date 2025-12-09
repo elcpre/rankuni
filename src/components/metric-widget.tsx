@@ -150,7 +150,7 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-[50px]">Rank</TableHead>
-                                    <TableHead component="th" scope="col">School</TableHead>
+                                    <TableHead>School</TableHead>
                                     <TableHead className="text-right">{valueLabel}</TableHead>
                                 </TableRow>
                             </TableHeader>
