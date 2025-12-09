@@ -113,7 +113,6 @@ export default async function SchoolDetailsPage({ params }: Props) {
         },
         "description": `Detailed analytics for ${school.name}, including tuition, enrollment, and student satisfaction.`,
         "image": "/school-placeholder.png", // Replace with actual school logo if available
-        "foundingDate": school.yearFounded ? `${school.yearFounded}-01-01` : undefined,
         "numberOfStudents": enrollmentMetric ? enrollmentMetric.value : undefined,
         "aggregateRating": satisfactionMetric ? {
             "@type": "AggregateRating",
