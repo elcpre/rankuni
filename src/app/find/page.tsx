@@ -1,4 +1,6 @@
 'use client';
+
+import { Suspense } from 'react';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { Search } from 'lucide-react';
 
@@ -19,7 +21,9 @@ export default function FindPage() {
                 </p>
             </div>
 
-            <DashboardFilters defaultTab="search" autoFocusSearch={true} />
+            <Suspense fallback={<div className="text-center">Loading...</div>}>
+                <DashboardFilters defaultTab="search" autoFocusSearch={true} />
+            </Suspense>
         </div>
     );
 }
