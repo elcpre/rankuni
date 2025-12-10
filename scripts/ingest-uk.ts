@@ -4,9 +4,7 @@ import { prisma } from '../src/lib/db';
 import fs from 'fs';
 import path from 'path';
 
-// Mock Data for UK Universities (top 20 subset)
-// In a real scenario, this would read from the HESA CSV file.
-// Mock Data for UK Universities (top 20 subset)
+// Mock Data for UK Universities
 // In a real scenario, this would read from the HESA CSV file.
 // Added approximate lat/lon and type
 const ukUniversities = [
@@ -19,7 +17,9 @@ const ukUniversities = [
     { name: "University of Bristol", city: "Bristol", state: "Bristol", type: "Public", latitude: 51.4584, longitude: -2.6030, metrics: { "Student Size": 27000, "Admission Rate": 0.67, "Tuition (In-State)": 9250, "NSS Satisfaction": 0.76 } },
     { name: "University of Warwick", city: "Coventry", state: "West Midlands", type: "Public", latitude: 52.3793, longitude: -1.5615, metrics: { "Student Size": 28000, "Admission Rate": 0.70, "Tuition (In-State)": 9250, "NSS Satisfaction": 0.81 } },
     { name: "London School of Economics (LSE)", city: "London", state: "London", type: "Public", latitude: 51.5144, longitude: -0.1165, metrics: { "Student Size": 11000, "Admission Rate": 0.09, "Tuition (In-State)": 9250, "NSS Satisfaction": 0.82 } },
-    { name: "University of St Andrews", city: "St Andrews", state: "Scotland", type: "Public", latitude: 56.3398, longitude: -2.7967, metrics: { "Student Size": 10000, "Admission Rate": 0.41, "Tuition (In-State)": 1820, "NSS Satisfaction": 0.93 } }
+    { name: "University of St Andrews", city: "St Andrews", state: "Scotland", type: "Public", latitude: 56.3398, longitude: -2.7967, metrics: { "Student Size": 10000, "Admission Rate": 0.41, "Tuition (In-State)": 1820, "NSS Satisfaction": 0.93 } },
+    { name: "Cardiff University", city: "Cardiff", state: "Wales", type: "Public", latitude: 51.4816, longitude: -3.1791, metrics: { "Student Size": 33000, "Admission Rate": 0.75, "Tuition (In-State)": 9000, "NSS Satisfaction": 0.78 } },
+    { name: "Queen's University Belfast", city: "Belfast", state: "Northern Ireland", type: "Public", latitude: 54.5844, longitude: -5.9333, metrics: { "Student Size": 25000, "Admission Rate": 0.80, "Tuition (In-State)": 4710, "NSS Satisfaction": 0.82 } }
 ];
 
 async function ingestUK() {

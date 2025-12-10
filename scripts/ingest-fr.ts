@@ -151,9 +151,9 @@ async function ingestFR() {
                         schoolId: school.id,
                         name: "Tuition (In-State)",
                         category: "Cost",
-                        value: 170, // Standard Bachelor fee
+                        value: 175, // Standard Bachelor (Licence) fee for 2024-2025
                         year: 2024,
-                        source: 'Estimated (Public Sector)',
+                        source: 'Ministry of Higher Education (Droits d\'inscription)',
                     }
                 });
             }

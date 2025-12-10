@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, MapPin, Plus, X, BarChart2, Globe, Map } from 'lucide-react';
+import { Search, MapPin, Plus, X, BarChart2, Globe, Map, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -103,6 +103,37 @@ interface DashboardFiltersProps {
 export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = false }: DashboardFiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    // -- Collapsible Section State --
+    const [expandedSections, setExpandedSections] = useState<{
+        location: boolean;
+        search: boolean;
+        compare: boolean;
+    }>(() => {
+        // Smart defaults based on context
+        const hasCompare = searchParams.get('compare');
+        const hasLocation = searchParams.get('country') || searchParams.get('state') || searchParams.get('city');
+
+        if (hasCompare) {
+            return { location: false, search: false, compare: true };
+        } else if (hasLocation) {
+            return { location: true, search: false, compare: false };
+        } else {
+            // Use defaultTab prop
+            return {
+                location: defaultTab === 'location',
+                search: defaultTab === 'search',
+                compare: defaultTab === 'compare'
+            };
+        }
+    });
+
+    const toggleSection = (section: 'location' | 'search' | 'compare') => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
 
     // -- State --
     // We keep internal state for inputs to allow typing, but we sync 'committed' filter state to URL
@@ -247,14 +278,36 @@ export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = fa
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {/* 1. Browse Section (Larger Share) */}
-                <div className={`lg:col-span-5 transition-opacity duration-300 ${compareList.length > 0 ? 'opacity-40 pointer-events-none grayscale' : 'opacity-100'}`}>
-                    <div className="flex items-center space-x-2 mb-4 text-indigo-600">
+                {/* 1. Browse Section - Collapsible on Mobile, Always Visible on Desktop */}
+                <div className="lg:col-span-5">
+                    {/* Mobile: Collapsible Button */}
+                    <button
+                        onClick={() => toggleSection('location')}
+                        className={`lg:hidden w-full flex items-center justify-between p-4 rounded-lg transition-all ${expandedSections.location
+                            ? 'bg-indigo-50 dark:bg-indigo-900/20'
+                            : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            } ${compareList.length > 0 ? 'opacity-40 pointer-events-none grayscale' : 'opacity-100'}`}
+                    >
+                        <div className="flex items-center space-x-2 text-indigo-600">
+                            <Globe className="w-5 h-5" />
+                            <h3 className="font-bold text-sm uppercase tracking-wide">Browse by Location</h3>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${expandedSections.location ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Desktop: Always Visible Header */}
+                    <div className={`hidden lg:flex items-center space-x-2 mb-4 text-indigo-600 ${compareList.length > 0 ? 'opacity-40' : 'opacity-100'}`}>
                         <Globe className="w-5 h-5" />
                         <h3 className="font-bold text-sm uppercase tracking-wide">Browse by Location</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Content: Collapsible on Mobile, Always Visible on Desktop */}
+                    <div className={`
+                        ${expandedSections.location ? 'block' : 'hidden'} lg:block
+                        mt-4 lg:mt-0 grid grid-cols-1 sm:grid-cols-2 gap-4 
+                        ${expandedSections.location ? 'animate-in slide-in-from-top-2 duration-200 lg:animate-none' : ''}
+                        ${compareList.length > 0 ? 'lg:opacity-40 lg:pointer-events-none lg:grayscale' : 'lg:opacity-100'}
+                    `}>
                         <div className="sm:col-span-2">
                             <AutocompleteInput
                                 label="Country"
@@ -295,22 +348,44 @@ export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = fa
                     <span className="bg-white dark:bg-slate-900 py-2 px-1 text-xs text-slate-400 font-bold uppercase z-10 self-center">OR</span>
                 </div>
 
-                {/* 2. Direct Search Section */}
-                <div className={`lg:col-span-3 transition-opacity duration-300 ${compareList.length > 0 ? 'opacity-40 pointer-events-none grayscale' : 'opacity-100'}`}>
-                    <div className="flex items-center space-x-2 mb-4 text-purple-600">
+                {/* 2. Direct Search Section - Collapsible on Mobile, Always Visible on Desktop */}
+                <div className="lg:col-span-3">
+                    {/* Mobile: Collapsible Button */}
+                    <button
+                        onClick={() => toggleSection('search')}
+                        className={`lg:hidden w-full flex items-center justify-between p-4 rounded-lg transition-all ${expandedSections.search
+                            ? 'bg-purple-50 dark:bg-purple-900/20'
+                            : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            } ${compareList.length > 0 ? 'opacity-40 pointer-events-none grayscale' : 'opacity-100'}`}
+                    >
+                        <div className="flex items-center space-x-2 text-purple-600">
+                            <Search className="w-5 h-5" />
+                            <h3 className="font-bold text-sm uppercase tracking-wide">Find Institution</h3>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${expandedSections.search ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Desktop: Always Visible Header */}
+                    <div className={`hidden lg:flex items-center space-x-2 mb-4 text-purple-600 ${compareList.length > 0 ? 'opacity-40' : 'opacity-100'}`}>
                         <Search className="w-5 h-5" />
                         <h3 className="font-bold text-sm uppercase tracking-wide">Find Institution</h3>
                     </div>
 
-                    <div className="relative z-20"> {/* Higher Z-index for dropdown */}
+                    {/* Content: Collapsible on Mobile, Always Visible on Desktop */}
+                    <div className={`
+                        ${expandedSections.search ? 'block' : 'hidden'} lg:block
+                        mt-4 lg:mt-0 relative z-20
+                        ${expandedSections.search ? 'animate-in slide-in-from-top-2 duration-200 lg:animate-none' : ''}
+                        ${compareList.length > 0 ? 'lg:opacity-40 lg:pointer-events-none lg:grayscale' : 'lg:opacity-100'}
+                    `}>
                         <AutocompleteInput
                             label="Search by Name"
                             placeholder="Type name..."
                             type="school"
-                            contextParams={{ country }} // Respect selected country if any? Optional.
+                            contextParams={{ country }}
                             value={directSearchTerm}
                             onChange={setDirectSearchTerm}
-                            onSelect={(val: any) => handleDirectSearch(val)} // Note: Autocomplete needs to pass object for school!
+                            onSelect={(val: any) => handleDirectSearch(val)}
                             autoFocus={autoFocusSearch}
                         />
                     </div>
@@ -322,48 +397,81 @@ export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = fa
                     <span className="bg-white dark:bg-slate-900 py-2 px-1 text-xs text-slate-400 font-bold uppercase z-10 self-center">OR</span>
                 </div>
 
-                {/* 3. Compare Section */}
+                {/* 3. Compare Section - Collapsible on Mobile, Always Visible on Desktop */}
                 <div className="lg:col-span-2">
-                    <div className="flex items-center space-x-2 mb-4 text-pink-600">
+                    {/* Mobile: Collapsible Button */}
+                    <button
+                        onClick={() => toggleSection('compare')}
+                        className={`lg:hidden w-full flex items-center justify-between p-4 rounded-lg transition-all ${expandedSections.compare
+                                ? 'bg-pink-50 dark:bg-pink-900/20'
+                                : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            }`}
+                    >
+                        <div className="flex items-center space-x-2 text-pink-600">
+                            <BarChart2 className="w-5 h-5" />
+                            <h3 className="font-bold text-sm uppercase tracking-wide">Compare</h3>
+                            {compareList.length > 0 && (
+                                <span className="bg-pink-100 text-pink-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {compareList.length}
+                                </span>
+                            )}
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${expandedSections.compare ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Desktop: Always Visible Header */}
+                    <div className="hidden lg:flex items-center space-x-2 mb-4 text-pink-600">
                         <BarChart2 className="w-5 h-5" />
                         <h3 className="font-bold text-sm uppercase tracking-wide">Compare</h3>
-                    </div>
-
-                    <div className="relative">
-                        <Input
-                            placeholder="Type to add..."
-                            value={searchTerm}
-                            onChange={(e) => searchSchoolForCompare(e.target.value)}
-                            onFocus={() => searchSchoolForCompare(searchTerm)} // Trigger on focus
-                            className="h-10 text-sm"
-                        />
-                        {/* Suggestions Dropdown */}
-                        {schoolSuggestions.length > 0 && (
-                            <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-950 rounded-md shadow-lg border border-slate-200 max-h-60 overflow-y-auto right-0 min-w-[200px]">
-                                {schoolSuggestions.map((s) => (
-                                    <div
-                                        key={s.id}
-                                        className="px-4 py-2 hover:bg-pink-50 dark:hover:bg-pink-900/20 cursor-pointer text-sm flex justify-between"
-                                        onClick={() => addSchoolToCompare(s)}
-                                    >
-                                        <span className="truncate pr-2">{s.name}</span>
-                                        <Plus className="w-4 h-4 text-slate-400 shrink-0" />
-                                    </div>
-                                ))}
-                            </div>
+                        {compareList.length > 0 && (
+                            <span className="bg-pink-100 text-pink-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                {compareList.length}
+                            </span>
                         )}
                     </div>
 
-                    {/* Compare Tags */}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                        {compareList.map((item) => (
-                            <div key={item.id} className="flex items-center bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-full text-xs font-medium">
-                                <span className="truncate max-w-[80px]">{item.name}</span>
-                                <button onClick={() => removeSchoolFromCompare(item.id)} className="ml-1 hover:text-pink-900">
-                                    <X className="w-3 h-3" />
-                                </button>
-                            </div>
-                        ))}
+                    {/* Content: Collapsible on Mobile, Always Visible on Desktop */}
+                    <div className={`
+                        ${expandedSections.compare ? 'block' : 'hidden'} lg:block
+                        mt-4 lg:mt-0
+                        ${expandedSections.compare ? 'animate-in slide-in-from-top-2 duration-200 lg:animate-none' : ''}
+                    `}>
+                        <div className="relative">
+                            <Input
+                                placeholder="Type to add..."
+                                value={searchTerm}
+                                onChange={(e) => searchSchoolForCompare(e.target.value)}
+                                onFocus={() => searchSchoolForCompare(searchTerm)}
+                                className="h-10 text-sm"
+                            />
+                            {/* Suggestions Dropdown */}
+                            {schoolSuggestions.length > 0 && (
+                                <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-950 rounded-md shadow-lg border border-slate-200 max-h-60 overflow-y-auto right-0 min-w-[200px]">
+                                    {schoolSuggestions.map((s) => (
+                                        <div
+                                            key={s.id}
+                                            className="px-4 py-2 hover:bg-pink-50 dark:hover:bg-pink-900/20 cursor-pointer text-sm flex justify-between"
+                                            onClick={() => addSchoolToCompare(s)}
+                                        >
+                                            <span className="truncate pr-2">{s.name}</span>
+                                            <Plus className="w-4 h-4 text-slate-400 shrink-0" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Compare Tags */}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                            {compareList.map((item) => (
+                                <div key={item.id} className="flex items-center bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-full text-xs font-medium">
+                                    <span className="truncate max-w-[80px]">{item.name}</span>
+                                    <button onClick={() => removeSchoolFromCompare(item.id)} className="ml-1 hover:text-pink-900">
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

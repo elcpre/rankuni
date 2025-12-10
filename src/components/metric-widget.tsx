@@ -25,57 +25,90 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
     // Data State
     const [expandedMetrics, setExpandedMetrics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [page, setPage] = useState(0);
+    const BATCH_SIZE = 50;
 
-    // Use initial metrics when collapsed. When expanded, use expandedMetrics if available, or stay empty while loading.
-    const displayMetrics = isExpanded ? expandedMetrics : initialMetrics;
+    // Use initial metrics when collapsed. When expanded, use expandedMetrics if available.
+    const displayMetrics = isExpanded && expandedMetrics.length > 0 ? expandedMetrics : initialMetrics;
 
     // Reset data when context changes
     useEffect(() => {
+        // Clear on context change
         setExpandedMetrics([]);
+        setPage(0);
+        setHasMore(true);
     }, [metricName, JSON.stringify(contextParams)]);
 
-    // Fetch data when expanded and empty (and not already loading)
-    useEffect(() => {
-        if (isExpanded && expandedMetrics.length === 0 && metricName && !isLoading) {
-            const fetchData = async () => {
-                setIsLoading(true);
-                try {
-                    // Filter out undefined/null/empty strings
-                    const cleanContext: Record<string, string> = {};
-                    if (contextParams) {
-                        Object.entries(contextParams).forEach(([key, value]) => {
-                            if (value !== undefined && value !== null && value !== '' && value !== 'undefined') {
-                                cleanContext[key] = String(value);
-                            }
-                        });
-                    }
+    const loadMoreData = async (currentPage: number) => {
+        if (isLoading || !hasMore || !metricName) return;
 
-                    const params = new URLSearchParams({
-                        metric: metricName,
-                        limit: '500', // Load up to 500 for "All" view
-                        ...cleanContext
-                    });
-                    // Maintain sort order logic from parent if needed? 
-                    // Usually parent passes pre-sorted top 10. API defaults to desc.
-                    // Exception: "Lowest Tuition" needs order=asc.
-                    if (title.toLowerCase().includes('lowest')) {
-                        params.set('order', 'asc');
+        setIsLoading(true);
+        try {
+            const cleanContext: Record<string, string> = {};
+            if (contextParams) {
+                Object.entries(contextParams).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== '' && value !== 'undefined') {
+                        cleanContext[key] = String(value);
                     }
+                });
+            }
 
-                    const res = await fetch(`/api/metrics?${params.toString()}`);
-                    const data = await res.json();
-                    if (Array.isArray(data)) {
-                        setExpandedMetrics(data);
-                    }
-                } catch (e) {
-                    console.error("Failed to fetch extended metrics", e);
-                } finally {
-                    setIsLoading(false);
+            const params = new URLSearchParams({
+                metric: metricName,
+                limit: String(BATCH_SIZE),
+                skip: String(currentPage * BATCH_SIZE),
+                ...cleanContext
+            });
+
+            if (title.toLowerCase().includes('lowest')) {
+                params.set('order', 'asc');
+            }
+
+            const res = await fetch(`/api/metrics?${params.toString()}`);
+            const data = await res.json();
+
+            if (Array.isArray(data)) {
+                if (data.length < BATCH_SIZE) {
+                    setHasMore(false);
                 }
-            };
-            fetchData();
+
+                // Filter out duplicates to prevent key errors
+                setExpandedMetrics(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const newItems = data.filter((d: any) => !existingIds.has(d.id));
+                    return [...prev, ...newItems];
+                });
+            } else {
+                setHasMore(false);
+            }
+        } catch (e) {
+            console.error("Failed to fetch extended metrics", e);
+            setHasMore(false);
+        } finally {
+            setIsLoading(false);
         }
-    }, [isExpanded, metricName, JSON.stringify(contextParams), expandedMetrics.length]);
+    };
+
+    // Initial Fetch on Expand
+    useEffect(() => {
+        if (isExpanded && expandedMetrics.length === 0 && hasMore && !isLoading) {
+            loadMoreData(0);
+            setPage(1); // Next page
+        }
+    }, [isExpanded, metricName]); // Depend only on stable props
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        e.stopPropagation(); // Stop bubble
+        if (!isExpanded || isLoading || !hasMore) return;
+
+        const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+        // Trigger when within 100px of bottom
+        if (scrollHeight - scrollTop <= clientHeight + 100) {
+            loadMoreData(page);
+            setPage(prev => prev + 1);
+        }
+    };
 
     // Internal Formatter
     const formatValue = (val: number, currency?: string) => {
@@ -87,10 +120,10 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
         return val.toLocaleString();
     };
 
-    // Chart Data Preparation
-    const chartData = displayMetrics.map((m, i) => ({
+    // Chart Data Preparation (limit logic?)
+    const chartData = (isExpanded ? expandedMetrics.slice(0, 50) : initialMetrics).map((m, i) => ({
         name: m.school.name,
-        shortName: m.school.name.length > 20 && !isExpanded ? m.school.name.substring(0, 20) + '...' : m.school.name, // Show full name if expanded
+        shortName: m.school.name.length > 20 && !isExpanded ? m.school.name.substring(0, 20) + '...' : m.school.name,
         value: m.value,
         fullData: m
     }));
@@ -98,21 +131,17 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
     const toggleExpand = () => setIsExpanded(!isExpanded);
 
     // Styles for expanded vs normal state
-    const containerClasses = isExpanded
-        ? "fixed inset-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-8 overflow-auto flex flex-col transition-all duration-300"
-        : "shadow-md border-0 bg-white/50 backdrop-blur-sm h-full flex flex-col transition-all duration-300";
-
-    const contentHeight = isExpanded ? "h-[80vh]" : "h-[400px]";
+    const expandStyles = isExpanded ? "fixed inset-0 z-50 bg-white dark:bg-slate-950 p-6 overflow-hidden flex flex-col" : "";
+    const contentHeight = isExpanded ? "h-[60vh]" : "h-[400px]";
 
     return (
-        <Card className={containerClasses}>
-            <CardHeader className="flex flex-row items-start justify-between pb-2 shrink-0">
-                <div>
-                    <CardTitle className={isExpanded ? "text-2xl font-bold text-slate-800" : "text-lg font-bold text-slate-800"}>
+        <Card className={`relative transition-all duration-300 ${expandStyles} ${isExpanded ? 'rounded-none shadow-none' : 'hover:shadow-lg'}`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
+                <div className="space-y-1">
+                    <CardTitle className={`text-base font-semibold ${isExpanded ? 'text-2xl' : ''}`}>
                         {title}
-                        {isLoading && isExpanded && <span className="ml-3 text-sm font-normal text-indigo-500 animate-pulse">Loading all entries...</span>}
                     </CardTitle>
-                    <CardDescription className={isExpanded ? "text-base mt-2" : ""}>{description}</CardDescription>
+                    {isExpanded && <CardDescription>{description}</CardDescription>}
                 </div>
                 <div className="flex items-center space-x-2">
                     <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 space-x-1">
@@ -132,18 +161,21 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
                         >
                             <ChartIcon className="w-4 h-4" />
                         </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0 text-slate-400 hover:text-indigo-600 border-l border-slate-200 ml-1 pl-1"
-                            onClick={toggleExpand}
-                        >
-                            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-                        </Button>
                     </div>
+
+                    {!isExpanded && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400" onClick={toggleExpand}>
+                            <Maximize2 className="h-4 w-4" />
+                        </Button>
+                    )}
+                    {isExpanded && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleExpand}>
+                            <Minimize2 className="h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
             </CardHeader>
-            <CardContent className="flex-grow">
+            <CardContent className={`pt-2 ${isExpanded ? 'flex-1 overflow-y-auto min-h-0' : ''}`} onScroll={isExpanded ? handleScroll : undefined}>
                 {view === 'table' ? (
                     <div className={isExpanded ? "mt-4" : ""}>
                         <Table>
@@ -233,6 +265,6 @@ export function MetricWidget({ title, description, metrics: initialMetrics, valu
                     </div>
                 )}
             </CardContent>
-        </Card>
+        </Card >
     );
 }

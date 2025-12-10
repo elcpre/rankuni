@@ -36,9 +36,9 @@ export default function SchoolMap({ schools }: SchoolMapProps) {
             // Very basic centroid
             const latSum = schools.reduce((sum, s) => sum + s.latitude, 0);
             const lngSum = schools.reduce((sum, s) => sum + s.longitude, 0);
-            setCenter([latSum / schools.length, lngSum / schools.length]);
+            const computedCenter: [number, number] = [latSum / schools.length, lngSum / schools.length];
 
-            // Adjust zoom heuristic
+            // Adjust zoom heuristic - check tightness of cluster
             if (schools.length === 1) {
                 // If single school, zoom in close
                 setCenter([schools[0].latitude, schools[0].longitude]);
@@ -46,17 +46,32 @@ export default function SchoolMap({ schools }: SchoolMapProps) {
             } else {
                 // Check country consistency
                 const countries = new Set(schools.map(s => s.country));
+                const states = new Set(schools.map(s => s.state));
+
                 if (countries.size === 1) {
-                    if (countries.has('UK')) { setCenter([54, -2]); setZoom(5); }
-                    else if (countries.has('FR')) { setCenter([46, 2]); setZoom(5); }
-                    else if (countries.has('US')) { setCenter([39, -98]); setZoom(4); }
-                    else { setZoom(3); }
+                    // Country Specific Defaults if "Zoomed Out"
+                    if (countries.has('UK')) { setCenter([54, -2]); setZoom(6); }
+                    else if (countries.has('FR')) { setCenter([46, 2]); setZoom(6); }
+                    else if (countries.has('US')) {
+                        if (states.size === 1) {
+                            // Single State Focus
+                            setCenter(computedCenter);
+                            setZoom(7); // Regional zoom
+                        } else {
+                            // Multiple states (broad US)
+                            setCenter([39, -98]);
+                            setZoom(4);
+                        }
+                    }
+                    else { setCenter(computedCenter); setZoom(3); }
                 } else {
+                    // Mixed countries
+                    setCenter(computedCenter);
                     setZoom(3);
                 }
             }
         }
-    }, [schools]);
+    }, [schools, schools.length, schools[0]?.id]); // Added deeper dependencies to force update on new search
 
     if (!schools || schools.length === 0) {
         return (

@@ -11,6 +11,8 @@ export async function GET(request: Request) {
     const compareIds = searchParams.get('compareIds')?.split(',').filter(Boolean);
     const order = (searchParams.get('order') as 'asc' | 'desc') || 'desc';
 
+    const skip = parseInt(searchParams.get('skip') || '0');
+
     if (!metricName) {
         return NextResponse.json({ error: 'Metric name required' }, { status: 400 });
     }
@@ -31,6 +33,7 @@ export async function GET(request: Request) {
         const metrics = await prisma.metric.findMany({
             where,
             take: limit,
+            skip: skip,
             distinct: ['schoolId'], // Prevent duplicates
             orderBy: { value: order },
             include: { school: true },

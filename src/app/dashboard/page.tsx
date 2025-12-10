@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
-import { Users, GraduationCap, DollarSign, Activity, ThumbsUp, ThumbsDown, ArrowLeft } from 'lucide-react';
+import { Users, GraduationCap, DollarSign, Activity, ThumbsUp, ThumbsDown, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { DashboardFilters } from '@/components/dashboard-filters';
 import { SectorDistributionChart } from '@/components/sector-distribution-chart';
 import SchoolMapLoader from '@/components/school-map-loader';
@@ -61,21 +61,36 @@ async function getSectorStats(state?: string, city?: string, country?: string, c
 }
 
 async function getSchoolLocations(state?: string, city?: string, country?: string, compareIds?: string[]) {
-    const where: any = { latitude: { not: null }, longitude: { not: null } };
+    // 1. Where clause for the SCHOOL (Location)
+    const schoolWhere: any = { latitude: { not: null }, longitude: { not: null } };
+
     if (compareIds && compareIds.length > 0) {
-        where.id = { in: compareIds };
+        schoolWhere.id = { in: compareIds };
     } else {
-        if (state) where.state = state;
-        if (city) where.city = { contains: city };
-        if (country) where.country = country;
+        if (state) schoolWhere.state = state;
+        if (city) schoolWhere.city = { contains: city };
+        if (country) schoolWhere.country = country;
     }
 
-    // Limit map pins for performance
-    return await prisma.school.findMany({
-        where,
-        select: { id: true, name: true, latitude: true, longitude: true, type: true, city: true, state: true, country: true },
-        take: 1000
+    // 2. Fetch via Metric (Student Size) to get the "Largest 1000"
+    // We filter metrics where the related school matches the location criteria
+    const topmetrics = await prisma.metric.findMany({
+        where: {
+            name: "Student Size",
+            school: schoolWhere
+        },
+        orderBy: { value: 'desc' },
+        distinct: ['schoolId'],
+        take: 1000,
+        include: {
+            school: {
+                select: { id: true, name: true, latitude: true, longitude: true, type: true, city: true, state: true, country: true }
+            }
+        }
     });
+
+    // 3. Extract school objects
+    return topmetrics.map(m => m.school);
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ state?: string, city?: string, country?: string, compare?: string }> }) {
@@ -105,20 +120,22 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* Header / Nav */}
-            <div className="flex items-center justify-between mb-8">
-                <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Home
-                </Link>
-                <div className="text-right">
-                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-                        Analytics Dashboard
-                    </h1>
-                    <p className="text-xs text-slate-500">
-                        {compareIds ? `Comparing ${compareIds.length} Schools` : (country || 'Global Data')}
-                    </p>
+            {/* Header */}
+            <div className="mb-8 text-center">
+                <div className="inline-flex items-center justify-center p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-6">
+                    <LayoutDashboard className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
                 </div>
+                <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+                    Analytics <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Dashboard</span>
+                </h1>
+                <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                    {compareIds
+                        ? `Comparing ${compareIds.length} ${compareIds.length === 1 ? 'school' : 'schools'}`
+                        : country
+                            ? `Viewing data for ${country === 'US' ? 'United States' : country === 'UK' ? 'United Kingdom' : country === 'FR' ? 'France' : country}${state ? ` - ${state}` : ''}${city ? ` - ${city}` : ''}`
+                            : 'Explore global university data and insights across the US, UK, and France.'
+                    }
+                </p>
             </div>
 
             {/* Filters */}

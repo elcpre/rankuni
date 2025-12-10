@@ -43,9 +43,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans">
             <div className="container mx-auto px-4 py-8">
-                <Link href="/" className="inline-flex items-center text-sm text-slate-500 hover:text-indigo-600 mb-6 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
-                </Link>
 
                 <div className="max-w-3xl mx-auto space-y-8">
                     <div className="text-center">

@@ -165,8 +165,8 @@ async function main() {
             count += results.length;
             page++;
 
-            if (page > 3) { // Limit to 3 pages for quick verification
-                console.log('Stopping after 3 pages.');
+            if (page > 100) { // Limit to 100 pages (approx 10,000 schools) which covers everything relevant
+                console.log('Stopping after 100 pages.');
                 hasMore = false;
             }
 

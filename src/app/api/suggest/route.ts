@@ -63,7 +63,8 @@ export async function GET(request: Request) {
                     ...(country ? { country } : {})
                 },
                 distinct: ['state'],
-                take: 10,
+                take: 100,
+                orderBy: { state: 'asc' },
                 select: { state: true, country: true }
             });
             results = states;
