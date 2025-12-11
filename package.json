@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/update-schema-provider.js && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "node scripts/update-schema-provider.js && prisma generate"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
