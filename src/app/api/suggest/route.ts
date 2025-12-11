@@ -16,6 +16,7 @@ export async function GET(request: Request) {
         if (qLower.includes('united states') || qLower.includes('usa') || qLower.includes('america')) searchQ = 'US';
         else if (qLower.includes('united kingdom') || qLower.includes('britain') || qLower.includes('uk')) searchQ = 'UK';
         else if (qLower.includes('france')) searchQ = 'FR';
+        else if (qLower.includes('canada')) searchQ = 'CA';
     } else if (type === 'state') {
         // Basic State Mapping (Example)
         if (qLower === 'california' || qLower.startsWith('calif')) searchQ = 'CA';
@@ -75,7 +76,8 @@ export async function GET(request: Request) {
             const allCountries = [
                 { country: 'US', keywords: ['united states', 'usa', 'us', 'america'] },
                 { country: 'UK', keywords: ['united kingdom', 'uk', 'britain', 'england'] },
-                { country: 'FR', keywords: ['france', 'fr'] }
+                { country: 'FR', keywords: ['france', 'fr'] },
+                { country: 'CA', keywords: ['canada', 'ca'] }
             ];
 
             results = allCountries

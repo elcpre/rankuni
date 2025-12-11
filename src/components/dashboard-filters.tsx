@@ -82,7 +82,7 @@ function AutocompleteInput({
                                     setShowSuggestions(false);
                                 }}
                             >
-                                {type === 'country' && <span>{s.country === 'US' ? '🇺🇸 United States' : s.country === 'UK' ? '🇬🇧 United Kingdom' : s.country === 'FR' ? '🇫🇷 France' : s.country}</span>}
+                                {type === 'country' && <span>{s.country === 'US' ? '🇺🇸 United States' : s.country === 'UK' ? '🇬🇧 United Kingdom' : s.country === 'FR' ? '🇫🇷 France' : s.country === 'CA' ? '🇨🇦 Canada' : s.country}</span>}
                                 {type === 'state' && <span>{s.state}</span>}
                                 {type === 'city' && <span>{s.city}, {s.state}</span>}
                                 {type === 'school' && <span>{s.name} <span className='text-xs text-slate-400'>({s.city})</span></span>}

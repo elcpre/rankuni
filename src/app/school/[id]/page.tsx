@@ -303,7 +303,7 @@ export default async function SchoolDetailsPage({ params }: Props) {
                             <EnrollmentHistoryChart data={enrollmentHistory} />
                         </VisualizationCard>
                     ) : (
-                        (tuitionInState || tuitionOutState) && school.country === 'US' && (
+                        (tuitionInState || tuitionOutState) && school.country === 'US' ? (
                             <VisualizationCard
                                 title="Tuition Costs"
                                 description="Comparison of In-State vs Out-of-State tuition"
@@ -318,7 +318,30 @@ export default async function SchoolDetailsPage({ params }: Props) {
                                     />
                                 </div>
                             </VisualizationCard>
-                        )
+                        ) : school.country === 'CA' ? (
+                            <VisualizationCard
+                                title="Tuition Costs (Avg)"
+                                description="Domestic vs International Tuition (Provincial Avg)"
+                                className="bg-white"
+                            >
+                                <div className="h-[300px] w-full mt-4">
+                                    <SchoolMetricsChart
+                                        data={[
+                                            {
+                                                name: 'Domestic',
+                                                value: metrics.find(m => m.name === 'Tuition (Domestic Undergrad)')?.value || 0,
+                                                fill: '#6366f1'
+                                            },
+                                            {
+                                                name: 'International',
+                                                value: metrics.find(m => m.name === 'Tuition (International Undergrad)')?.value || 0,
+                                                fill: '#ef4444'
+                                            }
+                                        ].filter(d => d.value > 0)}
+                                    />
+                                </div>
+                            </VisualizationCard>
+                        ) : null
                     )}
 
                     {/* Detailed Metrics Table */}

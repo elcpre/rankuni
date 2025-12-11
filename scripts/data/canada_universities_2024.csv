@@ -1,0 +1,11 @@
+name,city,state,web,lat,lon,enrollment,admission,tuition_dom,tuition_intl
+University of Toronto,Toronto,ON,utoronto.ca,43.6629,-79.3957,99794,0.43,6100,60500
+University of British Columbia,Vancouver,BC,ubc.ca,49.2827,-123.1207,72776,0.52,5700,45000
+McGill University,Montreal,QC,mcgill.ca,45.5048,-73.5772,39513,0.41,4500,55000
+McMaster University,Hamilton,ON,mcmaster.ca,43.2610,-79.9192,37000,0.58,6000,43000
+University of Alberta,Edmonton,AB,ualberta.ca,53.5232,-113.5263,44000,0.58,6500,35000
+Université de Montréal,Montreal,QC,umontreal.ca,45.5048,-73.6133,67000,0.57,4000,30000
+University of Waterloo,Waterloo,ON,uwaterloo.ca,43.4723,-80.5449,42000,0.53,8000,48000
+Western University,London,ON,uwo.ca,43.0096,-81.2737,36000,0.58,7500,41000
+University of Calgary,Calgary,AB,ucalgary.ca,51.0776,-114.1407,36000,0.20,6800,32000
+Queen's University,Kingston,ON,queensu.ca,44.2253,-76.4951,28000,0.42,7200,49000

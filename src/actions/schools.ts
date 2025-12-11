@@ -45,8 +45,9 @@ export async function getNationalAverages(country: string) {
     // For now, we'll compute it live but filtered by year to get "latest".
 
     // 1. Get average tuition
+    const tuitionName = country === 'CA' ? 'Tuition (Domestic Undergrad)' : 'Tuition (In-State)';
     const tuitionIn = await prisma.metric.aggregate({
-        where: { name: 'Tuition (In-State)', school: { country } },
+        where: { name: tuitionName, school: { country } },
         _avg: { value: true }
     });
 
