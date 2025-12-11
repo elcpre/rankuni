@@ -15,12 +15,25 @@ async function main() {
 
     const records = parse(fileContent, {
         columns: true,
-        skip_empty_lines: true
     });
 
-    console.log(`Found ${records.length} schools in CSV.`);
+    interface CanadianMetric {
+        name: string;
+        city: string;
+        state: string; // "ON", "BC"
+        web: string;   // "utoronto.ca"
+        lat: string;   // "43.6629" (needs parsing)
+        lon: string;   // "-79.3957"
+        enrollment: string; // "97000"
+        tuition_dom: string; // "6100"
+        tuition_intl: string; // "60000"
+        admission: string; // "0.43"
+    }
 
-    for (const row of records) {
+    const rows = records as CanadianMetric[];
+    console.log(`Found ${rows.length} schools in CSV.`);
+
+    for (const row of rows) {
         console.log(`Processing ${row.name}...`);
 
         // Upsert School
