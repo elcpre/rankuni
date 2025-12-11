@@ -22,7 +22,7 @@ export function CookieConsent() {
     });
 
     useEffect(() => {
-        const stored = localStorage.getItem('unimeta-consent');
+        const stored = localStorage.getItem('rankuni-consent');
         if (!stored) {
             setIsOpen(true);
         } else {
@@ -32,14 +32,14 @@ export function CookieConsent() {
     }, []);
 
     const handleAcceptAll = () => {
-        localStorage.setItem('unimeta-consent', 'accepted_all');
+        localStorage.setItem('rankuni-consent', 'accepted_all');
         setConsentState('accepted_all');
         setIsOpen(false);
         // Here you would trigger analytics scripts
     };
 
     const handleDecline = () => {
-        localStorage.setItem('unimeta-consent', 'declined');
+        localStorage.setItem('rankuni-consent', 'declined');
         setConsentState('declined');
         setIsOpen(false);
     };
@@ -47,10 +47,16 @@ export function CookieConsent() {
     const handleSaveSettings = () => {
         // Determine state based on detailed selection
         const state = consents.analytics ? 'accepted_custom' : 'accepted_essential';
-        localStorage.setItem('unimeta-consent', state);
-        localStorage.setItem('unimeta-consent-details', JSON.stringify(consents));
+        localStorage.setItem('rankuni-consent', state);
+        localStorage.setItem('rankuni-consent-details', JSON.stringify(consents));
         setConsentState(state);
         setIsOpen(false);
+    };
+
+    const resetCookies = () => {
+        localStorage.removeItem('rankuni-consent');
+        localStorage.removeItem('rankuni-consent-details');
+        window.location.reload();
     };
 
     if (!isOpen) return null;
@@ -98,7 +104,8 @@ export function CookieConsent() {
                                     <Label htmlFor="essential" className="font-bold">Essential</Label>
                                     <Switch id="essential" checked={true} disabled />
                                 </div>
-                                <p className="text-xs text-slate-500">Required for the website to function properly. Cannot be disabled.</p>
+                                <p className="text-xs text-slate-500 mb-1">Required for the website to function properly.</p>
+                                <p className="text-[10px] text-slate-400 font-mono">Cookies: rankuni-consent</p>
                             </div>
 
                             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -110,7 +117,8 @@ export function CookieConsent() {
                                         onCheckedChange={(c) => setConsents({ ...consents, analytics: c })}
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500">Help us understand how visitors interact with the website.</p>
+                                <p className="text-xs text-slate-500 mb-1">Help us understand how visitors interact with the website.</p>
+                                <p className="text-[10px] text-slate-400 font-mono">Cookies: _ga, _ga_*</p>
                             </div>
 
                             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -122,7 +130,8 @@ export function CookieConsent() {
                                         onCheckedChange={(c) => setConsents({ ...consents, marketing: c })}
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500">Used to display relevant advertisements to you.</p>
+                                <p className="text-xs text-slate-500 mb-1">Used to display relevant advertisements to you.</p>
+                                <p className="text-[10px] text-slate-400 font-mono">Cookies: (None currently active)</p>
                             </div>
                         </div>
 

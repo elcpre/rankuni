@@ -26,10 +26,41 @@ export default function CookiesPage() {
                 </p>
 
                 <h3>Types of Cookies We Use</h3>
-                <ul>
-                    <li><strong>Essential Cookies:</strong> These cookies are essential to provide You with services available through the Website and to enable You to use some of its features.</li>
-                    <li><strong>Analytics Cookies:</strong> These cookies are used to track information about traffic to the Website and how users use the Website. The information gathered via these cookies may directly or indirectly identify you as an individual visitor.</li>
-                </ul>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm text-left border rounded-lg overflow-hidden">
+                        <thead className="bg-slate-100 dark:bg-slate-800 font-bold">
+                            <tr>
+                                <th className="p-3">Category</th>
+                                <th className="p-3">Cookie Name</th>
+                                <th className="p-3">Purpose</th>
+                                <th className="p-3">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                            <tr>
+                                <td className="p-3 font-semibold">Essential</td>
+                                <td className="p-3 font-mono text-xs">rankuni-consent</td>
+                                <td className="p-3">Stores your cookie consent preferences so the banner doesn't reappear on every visit. (Local Storage)</td>
+                                <td className="p-3">Persistent</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-semibold">Analytics (Google)</td>
+                                <td className="p-3 font-mono text-xs">_ga</td>
+                                <td className="p-3">Used to distinguish unique users by assigning a randomly generated number as a client identifier.</td>
+                                <td className="p-3">2 years</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3 font-semibold">Analytics (Google)</td>
+                                <td className="p-3 font-mono text-xs">_ga_49BRWVRMFX</td>
+                                <td className="p-3">Used to persist session state.</td>
+                                <td className="p-3">2 years</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p className="mt-4 text-sm text-slate-500">
+                    <strong>Note:</strong> "Essential" items are stored in your browser's Local Storage, not technically as cookies, but serve the same functional purpose for consent management.
+                </p>
 
                 <h3>Your Choices Regarding Cookies</h3>
                 <p>

@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { GraduationCap, LayoutDashboard, Search, Home } from 'lucide-react';
+import { BarChart2, Search, Menu, X, GraduationCap, LayoutDashboard, Trophy } from 'lucide-react';
 
 export function Navbar() {
     const pathname = usePathname();
 
-    const links = [
-        { href: '/', label: 'Home', icon: Home },
+    const navLinks = [
         { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/find', label: 'Find Institution', icon: Search },
+        { href: '/rankings', label: 'Rankings', icon: Trophy },
+        { href: '/compare', label: 'Compare', icon: BarChart2 },
     ];
 
     return (
@@ -27,7 +28,7 @@ export function Navbar() {
                 </Link>
 
                 <div className="flex items-center space-x-1">
-                    {links.map((link) => {
+                    {navLinks.map((link) => {
                         const Icon = link.icon;
                         const isActive = pathname === link.href;
                         return (

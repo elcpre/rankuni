@@ -403,8 +403,8 @@ export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = fa
                     <button
                         onClick={() => toggleSection('compare')}
                         className={`lg:hidden w-full flex items-center justify-between p-4 rounded-lg transition-all ${expandedSections.compare
-                                ? 'bg-pink-50 dark:bg-pink-900/20'
-                                : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            ? 'bg-pink-50 dark:bg-pink-900/20'
+                            : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`}
                     >
                         <div className="flex items-center space-x-2 text-pink-600">
@@ -453,7 +453,10 @@ export function DashboardFilters({ defaultTab = 'location', autoFocusSearch = fa
                                             className="px-4 py-2 hover:bg-pink-50 dark:hover:bg-pink-900/20 cursor-pointer text-sm flex justify-between"
                                             onClick={() => addSchoolToCompare(s)}
                                         >
-                                            <span className="truncate pr-2">{s.name}</span>
+                                            <span className="truncate pr-2">
+                                                {s.name}
+                                                {s.city && <span className="text-xs text-slate-400 ml-1">({s.city}{s.state ? `, ${s.state}` : ''})</span>}
+                                            </span>
                                             <Plus className="w-4 h-4 text-slate-400 shrink-0" />
                                         </div>
                                     ))}

@@ -37,22 +37,24 @@ export async function GET(request: Request) {
         if (type === 'school') {
             results = await prisma.school.findMany({
                 where: {
-                    name: { contains: q },
+                    name: { contains: q, mode: 'insensitive' },
                     ...(country ? { country } : {}),
                     ...(state ? { state } : {})
                 },
-                take: 10,
+                take: 50,
+                orderBy: { name: 'asc' },
                 select: { id: true, name: true, city: true, state: true, country: true }
             });
         } else if (type === 'city') {
             const cities = await prisma.school.findMany({
                 where: {
-                    city: { contains: searchQ },
+                    city: { contains: searchQ, mode: 'insensitive' },
                     ...(country ? { country } : {}),
                     ...(state ? { state } : {})
                 },
                 distinct: ['city', 'state'],
-                take: 10,
+                take: 20,
+                orderBy: { city: 'asc' },
                 select: { city: true, state: true, country: true }
             });
             results = cities;

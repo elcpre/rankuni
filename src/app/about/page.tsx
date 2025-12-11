@@ -29,7 +29,17 @@ export default function AboutPage() {
                 Data Sources
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <Card>
+                    <CardContent className="pt-6">
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="text-2xl">🌍</span>
+                            <h3 className="font-bold">Global Rankings</h3>
+                        </div>
+                        <p className="text-sm text-slate-500 mb-2">Source: CWUR</p>
+                        <Badge variant="outline">cwur.org</Badge>
+                    </CardContent>
+                </Card>
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-2 mb-3">

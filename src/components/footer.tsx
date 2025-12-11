@@ -30,9 +30,11 @@ export function Footer() {
                         <h4 className="font-bold text-slate-900 dark:text-white mb-6">Platform</h4>
                         <ul className="space-y-3 text-sm text-slate-500">
                             <li><Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link></li>
-                            <li><Link href="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link></li>
-                            <li><Link href="/find" className="hover:text-indigo-600 transition-colors">Find Institution</Link></li>
                             <li><Link href="/about" className="hover:text-indigo-600 transition-colors">About Us</Link></li>
+                            <li><Link href="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link></li>
+                            <li><Link href="/find" className="text-slate-500 hover:text-indigo-600 transition-colors">Find Schools</Link></li>
+                            <li><Link href="/rankings" className="text-slate-500 hover:text-indigo-600 transition-colors">Global Rankings</Link></li>
+                            <li><Link href="/compare" className="text-slate-500 hover:text-indigo-600 transition-colors">Compare</Link></li>
                         </ul>
                     </div>
 

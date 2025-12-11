@@ -15,8 +15,8 @@ export default function ImpressumPage() {
 
                 <h3>Contact</h3>
                 <p>
-                    Email: info@unimeta.com<br />
-                    Website: www.unimeta.com
+                    Email: info@rankuni.app<br />
+                    Website: rankuni.app
                 </p>
 
                 <h3>Responsible for Content</h3>

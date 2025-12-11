@@ -20,16 +20,18 @@ async function debugQuery() {
 
     console.log("Query 'where':", JSON.stringify(where, null, 2));
 
-    const results = await prisma.metric.findMany({
-        where,
-        take: limit,
-        orderBy: { value: 'desc' },
+    const metrics = await prisma.metric.findMany({
+        where: {
+            name: { contains: 'Ranking' }
+        },
+        take: 3,
         include: { school: true },
+        orderBy: { value: 'asc' }
     });
-
-    console.log(`Found ${results.length} results.`);
-    if (results.length > 0) {
-        console.log("First result:", JSON.stringify(results[0], null, 2));
+    const count = await prisma.metric.count({ where: { name: { contains: 'Ranking' } } });
+    console.log(`Found ${count} ranking metrics.`); console.log(`Found ${metrics.length} results.`);
+    if (metrics.length > 0) {
+        console.log("First result:", JSON.stringify(metrics[0], null, 2));
     }
 }
 

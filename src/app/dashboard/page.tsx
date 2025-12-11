@@ -9,6 +9,8 @@ import { SectorDistributionChart } from '@/components/sector-distribution-chart'
 import SchoolMapLoader from '@/components/school-map-loader';
 import { VisualizationCard } from '@/components/visualization-card';
 import { MetricWidget } from '@/components/metric-widget';
+import { getTopRanked, getSchoolRankings } from '@/actions/schools';
+import { RankingComparisonWidget } from '@/components/ranking-comparison-widget';
 
 // Helper to fetch top metrics directly (Server Component pattern)
 async function getTopSchools(metricName: string, limit = 10, state?: string, city?: string, country?: string, compareIds?: string[], order: 'asc' | 'desc' = 'desc') {
@@ -106,7 +108,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         sectorStats,
         schoolLocations,
         highestSatisfaction,
-        lowestSatisfaction
+        lowestSatisfaction,
+        rankings
     ] = await Promise.all([
         getTopSchools('Student Size', 10, state, city, country, compareIds),
         getTopSchools('Admission Rate', 10, state, city, country, compareIds),
@@ -115,7 +118,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         getSectorStats(state, city, country, compareIds),
         getSchoolLocations(state, city, country, compareIds),
         getTopSchools('NSS Satisfaction', 5, state, city, country, compareIds, 'desc'),
-        getTopSchools('NSS Satisfaction', 5, state, city, country, compareIds, 'asc')
+        getTopSchools('NSS Satisfaction', 5, state, city, country, compareIds, 'asc'),
+        // Fetch Rankings if comparing
+        compareIds ? getSchoolRankings(compareIds) : Promise.resolve([])
     ]);
 
     return (
@@ -142,6 +147,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
                 <DashboardFilters />
             </Suspense>
+
+            {/* Ranking Comparison (Only visible when comparing or has data) */}
+            {compareIds && rankings.length > 0 && (
+                <div className="mb-8 animate-in slide-in-from-bottom-4">
+                    <RankingComparisonWidget rankings={rankings} />
+                </div>
+            )}
 
             {/* Visualizations Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 mt-6">

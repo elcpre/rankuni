@@ -12,7 +12,9 @@ import { EnrollmentHistoryChart } from '@/components/enrollment-history-chart';
 import SchoolMapLoader from '@/components/school-map-loader';
 import { VisualizationCard } from '@/components/visualization-card';
 
-import { getSchool } from '@/actions/schools';
+import { getSchool, getNationalAverages, getSimilarSchools } from '@/actions/schools';
+import { PeerBenchmarkChart } from '@/components/peer-benchmark-chart';
+import { SimilarSchoolsGrid } from '@/components/similar-schools-grid';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
@@ -56,12 +58,21 @@ export async function generateMetadata(
 export default async function SchoolDetailsPage({ params }: Props) {
     const { id } = await params;
 
-    // The component already fetches it using getSchool(id).
+    // Use Promise.all to fetch everything in parallel for speed
+    // Note: getSchool is awaited in generateMetadata so next.js deduplicates this request automatically.
+    // But we need school.country to fetch national averages, so we might need to chain or just fetch school first.
+    // Fetching school first is safer logic.
     const school = await getSchool(id);
 
     if (!school) {
         notFound();
     }
+
+    // Parallel fetch for aux data
+    const [nationalStats, similarSchools] = await Promise.all([
+        getNationalAverages(school.country),
+        getSimilarSchools(school.id)
+    ]);
 
     // --- Data Processing: Deduplicate Metrics ---
     // Group by name and sourceYear to find duplicates, keep the one with the highest precision or just first found (latest due to sort).
@@ -97,6 +108,43 @@ export default async function SchoolDetailsPage({ params }: Props) {
         .map(m => ({ year: m.year, value: m.value }));
 
     const isFrance = school.country === 'FR';
+
+    // Prepare Benchmark Data
+    const benchmarkMetrics = [];
+    if (tuitionInState && nationalStats.tuitionIn > 0) {
+        benchmarkMetrics.push({
+            name: 'Tuition (In-State)',
+            schoolValue: tuitionInState.value,
+            nationalAverage: nationalStats.tuitionIn,
+            format: 'currency',
+            currency: school.currency
+        });
+    }
+    if (admissionMetric && nationalStats.admission > 0) {
+        benchmarkMetrics.push({
+            name: 'Admission Rate',
+            schoolValue: admissionMetric.value,
+            nationalAverage: nationalStats.admission,
+            format: 'percent'
+        });
+    }
+    if (satisfactionMetric && nationalStats.satisfaction > 0) {
+        benchmarkMetrics.push({
+            name: 'Student Satisfaction',
+            schoolValue: satisfactionMetric.value,
+            nationalAverage: nationalStats.satisfaction,
+            format: 'percent'
+        });
+    }
+    if (earningsMetric && nationalStats.earnings > 0) {
+        benchmarkMetrics.push({
+            name: 'Median Earnings',
+            schoolValue: earningsMetric.value,
+            nationalAverage: nationalStats.earnings,
+            format: 'currency',
+            currency: school.currency
+        });
+    }
 
     // Prepare JSON-LD data for structured data
     const jsonLd = {
@@ -242,6 +290,9 @@ export default async function SchoolDetailsPage({ params }: Props) {
                         )}
                     </div>
 
+                    {/* Insights Block 1: Peer Benchmark */}
+                    <PeerBenchmarkChart schoolName={school.name} metrics={benchmarkMetrics as any[]} />
+
                     {/* Visualization: Enrollment History (France) or Tuition (General) */}
                     {isFrance && enrollmentHistory.length > 0 ? (
                         <VisualizationCard
@@ -304,6 +355,9 @@ export default async function SchoolDetailsPage({ params }: Props) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Insights Block 2: Similar Schools */}
+                    <SimilarSchoolsGrid schools={similarSchools} />
 
                 </div>
             </div>

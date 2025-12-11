@@ -27,6 +27,7 @@ model School {
   currency  String   @default("USD")
 
   metrics   Metric[]
+  rankingEntries RankingEntry[]
 
   createdAt DateTime @default(now())
 }
@@ -42,4 +43,31 @@ model Metric {
   source    String
 
   createdAt DateTime @default(now())
+}
+
+model RankingEntry {
+  id        String   @id @default(uuid())
+  
+  // Raw data from the CSV
+  name      String   // "Harvard University"
+  country   String?
+  rank      Int      // 1
+  score     Float?   // 99.9
+  year      Int
+  source    String   // "CWUR"
+  
+  // Sub-rankings (Generic JSON or specific fields? Specific is cleaner for sorting)
+  educationRank  Int?
+  employabilityRank Int?
+  facultyRank    Int?
+  researchRank   Int?
+
+  // Comparison/Linkage
+  schoolId  String?
+  school    School?  @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([source, year, rank]) // Ensure uniqueness per list
+  @@index([source, year])
 }
